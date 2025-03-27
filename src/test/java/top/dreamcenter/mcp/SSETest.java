@@ -43,17 +43,18 @@ public class SSETest {
         File files = targetPath.toFile();
         File[] files1 = files.listFiles(file -> (file.getName().endsWith(".jar")));
 
-        Assertions.assertNotNull(files1, "Can not find the generated jar file under [target] directory");
-        Assertions.assertEquals(1, files1.length, "Find more then one jar file under [target] directory");
-
-        String jarFilePath = files1[0].getAbsolutePath();
-
-
         // start the jar if not running.
         try (Socket ignored = new Socket(host, port)) {
             System.out.println("port " + port + " at host " + "localhost" + " is open。");
         } catch (IOException e) {
-            System.out.println("port " + port + " at host " + "localhost" + " 上is close or unreachable。opening...");
+            // Check if not started.
+            Assertions.assertNotNull(files1, "Not validate directory");
+            Assertions.assertNotEquals(0, files1.length, "Can not find the generated jar file under [target] directory");
+            Assertions.assertEquals(1, files1.length, "Find more then one jar file under [target] directory");
+
+            String jarFilePath = files1[0].getAbsolutePath();
+
+            System.out.println("port " + port + " at host " + "localhost" + "  is close or unreachable。opening...");
             ProcessBuilder process = new ProcessBuilder("java", "-jar", jarFilePath);
             startedProcess = process.start();
             System.out.println("service opened.");

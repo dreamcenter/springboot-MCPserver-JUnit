@@ -32,7 +32,8 @@ public class STDIOTest {
         File files = targetPath.toFile();
         File[] files1 = files.listFiles(file -> (file.getName().endsWith(".jar")));
 
-        Assertions.assertNotNull(files1, "Can not find the generated jar file under [target] directory");
+        Assertions.assertNotNull(files1, "Not validate directory");
+        Assertions.assertNotEquals(0, files1.length, "Can not find the generated jar file under [target] directory");
         Assertions.assertEquals(1, files1.length, "Find more then one jar file under [target] directory");
 
         jarFilePath = files1[0].getAbsolutePath();
@@ -41,7 +42,9 @@ public class STDIOTest {
     @BeforeEach
     public void initClient() {
         ServerParameters serverParameters = ServerParameters.builder("java")
-                .args("-jar", "-Dspring.ai.mcp.server.stdio=true", jarFilePath).build();
+                .args("-jar", "-Dfile.encoding=UTF-8", "-Dspring.ai.mcp.server.stdio=true", jarFilePath)
+                .env(Map.of("dreamcenter", "Welcome.")) // Set environments
+                .build();
         mcpClient = McpClient.sync(new StdioClientTransport(serverParameters)).build();
     }
 
@@ -61,7 +64,7 @@ public class STDIOTest {
         List<McpSchema.Content> contentList = weather.content();
         String res = easyTextContent(contentList);
 
-        Assertions.assertEquals("\"南京今天的温度是20\"", res);
+        Assertions.assertEquals("\"Welcome.南京今天的温度是20\"", res);
     }
 
     @Test
